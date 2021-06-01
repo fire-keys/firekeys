@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
 
   // on join race
   socket.on('join-race', (payload) => {
-
+ 
     if (races.length === 0 || races[races.length - 1].started === true) {
       let raceId = uuid();
       races.push({
@@ -76,19 +76,40 @@ io.on('connection', (socket) => {
 
   // on receive data
   socket.on('refresh-data', (payload) => {
+    let raceId=null;
+    for (let roomID of socket.rooms) {
+      if (roomID !== socket.id) {
+        raceId=roomID   
+      }
+   const userIndex= races[raceIndex].users.findIndex(user=>user.id=socket.id)
+    races[raceId].users[userIndex] =  {...races[raceId].users[userIndex] , wpm: payload.wpm, progress: payload.progress, errors: payload.progress, complete: payload.progress };
 
-    // io.sockets.clients(room).forEach(() => {
-    //   socket.emit(payload);
-    // });
-
-
-
-    //client send all information about his progress {name: "wesam", wpm: 35, progress: 0.95, errors: 4, complete: false}
-    // get the race id from the socket then update the user data in races array
-  });
+    socket.emit('updated', races[raceId]);
+  
+  };
 
   // on disconnect
-  socket.on('disconnect', (payload) => {
+  socket.on('disconnect', (payload) => 
+  {
+    let raceId=null;
+    if (socket.rooms.size > 1) {
+      for (let roomID of socket.rooms) {
+        if (roomID !== socket.id) {
+          raceId=roomID;
+
+        }
+      }
+    }
+   
+    const removeUser = (id,raceId) => {
+      const raceIndex = races.findIndex(race =>  race.raceId === raceId);
+      if (raceIndex !== -1) {
+      //splice method returns the removed the race
+        const userIndex= races[raceIndex].users.findIndex(user=>user.id=id);
+        delete races[raceIndex].users[userIndex];
+      }
+    };
+    removeUser(socket.id,raceId);
 
 
     // The user disconnected for some reason
