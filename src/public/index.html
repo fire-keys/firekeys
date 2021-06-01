@@ -4,13 +4,37 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
     <title>Fire Keys</title>
 </head>
 <body>
-    <h1>This is the main page</h1>
+    <!-- <section id="section-name-form">
+        <form id="name-form">
+            <label for="name">Enter your name</label>
+            <input type="text" name="name" id="name">
+            <input type="submit" value="Join Race">
+        </form>
+    </section> -->
 
-    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+    <section id="section-race">
+        <div class="race-details">
+            <div id="wmp-container" class="wpm">
+                <span id="wmp-text">0</span> wmp
+            </div>
+        </div>
+        <div class="section-text">
+            <div class="paragraph-text"></div>
+            <form>
+                <input type="text" name="typing-text" id="typing-text">
+            </form>
+        </div>
+        <div class="section-buttons">
+            <button>Join a new race</button>
+        </div>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src=”/socket.io/socket.io.js”></script>
-    <script src="/app.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>
