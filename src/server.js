@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, './public')));
 
 /* Store */
 
-const races = []; // [{raceId: "2e3s-1s5f4-d2dd-3pc3", started: true,  finished: false , users: [{name: "wesam", wpm: 35, progress: 0.95, errors: 4, complete: false, timestamp: 54545487841}, ...]}, ...]
+let races = []; // [{raceId: "2e3s-1s5f4-d2dd-3pc3", started: true,  finished: false , users: [{name: "wesam", wpm: 35, progress: 0.95, errors: 4, complete: false, timestamp: 54545487841}, ...]}, ...]
 
 /* All socket logic */
 io.on('connection', (socket) => {
@@ -57,10 +57,39 @@ io.on('connection', (socket) => {
   });
 });
 
+
+// [{raceId: "2e3s-1s5f4-d2dd-3pc3", started: true,  finished: false , users: [{name: "wesam", wpm: 35, progress: 0.95, errors: 4, complete: false, timestamp: 54545487841}, ...]}, ...]
+
 // every half second do this
+
 setInterval(() => {
-  // loop throug races and on each do the following
-  // if the race not started yet, then check if the users more than one then start then change the state of the race to started then emit race-data to all users in that race with all race data
+
+
+  races.forEach((race, index) => {
+    if (!race.started){
+      if (race.users.length > 1)
+      {
+        races[index]={...races[index], started: true };
+        // copy of races
+        // update property started in it
+        // spreading 
+        io.to(race.raceId).emit('race-started',  race  );
+      } else if (race.users.length===1){
+        io.to(race.raceId).emit('waiting');}
+      else {
+        io.to(race.raceId).emit('waiting');
+        delete races[index];}
+
+    } else if (race.started && race.finished){
+      io.to(race.raceId).emit('race-finished',  race );
+      delete races[index];
+
+    } else if (race.started && !race.finished){
+      io.to(race.raceId).emit('race-data', race);
+    } 
+  });
+  
+  // if the race not started yet, then check if the users more than one then start then change the state of the race to started then emit race-data to all users in that race with all race data(
   // if the race started and finished then emit a finish-race to all users in that race then remove the race from the race array
   // if the race not finished yet and the race has only one user then emit waiting event to the race users
   // if the race not finished yet, then emit race-data to all users in that race with all race data
