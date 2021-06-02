@@ -48,9 +48,9 @@ div.section-buttons {
     justify-content: center;
 }
 span.error {
-    color: red;
+    background-color: red;
 }
 
 span.correct {
-    color: green;
+    background-color: green;
 }
