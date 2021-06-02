@@ -47,7 +47,6 @@ io.on('connection', (socket) => {
         }
       }
     }
-
     if (races.length === 0 || races[races.length - 1].started === true) {
       let raceId = uuid();
       const paragraphResponse = await superagent.get(
@@ -120,7 +119,8 @@ io.on('connection', (socket) => {
     });
     if (raceIndex !== -1 && userIndex !== -1) {
       io.to(races[raceIndex].raceId).emit('race-finished', races[raceIndex]);
-      delete races[raceIndex];
+      races[raceIndex].users = races[raceIndex].users.filter((user,i)=> i !== userIndex);
+      
     }
 
     // The user disconnected for some reason
@@ -144,21 +144,20 @@ setInterval(() => {
       } else if (race.users.length === 1) {
         io.to(race.raceId).emit('waiting');
       } else {
-        io.to(race.raceId).emit('waiting');
-        delete races[index];
+        races = races.filter((race, i) => i !== index);
       }
     } else if (
       (race.started && race.finished) ||
       (race.started && race.users.length === 1)
     ) {
       io.to(race.raceId).emit('race-finished', race);
-      delete races[index];
+      races = races.filter((race, i) => i !== index);
     } else if (race.started && !race.finished) {
       race.users.forEach((user) => {
         if (user.progress === 1) {
           races[index].finished = true;
           io.to(race.raceId).emit('race-finished', race);
-          delete races[index];
+          races = races.filter((race, i) => i !== index);
         }
       });
       io.to(race.raceId).emit('race-data', race);
