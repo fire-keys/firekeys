@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, './public')));
 
 let races = []; // [{raceId: "2e3s-1s5f4-d2dd-3pc3", started: true,  finished: false , users: [{name: "wesam", wpm: 35, progress: 0.95, errors: 4, complete: false, timestamp: 54545487841}, ...]}, ...]
 
-let NUMBER_OF_USERS_PER_RACE = 2;
+let NUMBER_OF_USERS_PER_RACE = 3;
 
 /* All socket logic */
 io.on('connection', (socket) => {
@@ -95,13 +95,16 @@ io.on('connection', (socket) => {
       }
     }
     const raceIndex = races.findIndex((race) => race.raceId === raceId);
-    const userIndex = races[raceIndex].users.findIndex(
-      (user) => user.id === socket.id
-    );
-    races[raceIndex].users[userIndex] = {
-      ...races[raceIndex].users[userIndex],
-      ...payload,
-    };
+
+    if (raceIndex !== -1) {
+      const userIndex = races[raceIndex].users.findIndex(
+        (user) => user.id === socket.id
+      );
+      races[raceIndex].users[userIndex] = {
+        ...races[raceIndex].users[userIndex],
+        ...payload,
+      };
+    }
 
     socket.emit('updated', races[raceId]);
   });
@@ -119,8 +122,7 @@ io.on('connection', (socket) => {
     });
     if (raceIndex !== -1 && userIndex !== -1) {
       io.to(races[raceIndex].raceId).emit('race-finished', races[raceIndex]);
-      races[raceIndex].users = races[raceIndex].users.filter((user,i)=> i !== userIndex);
-      
+      races = races.filter((race, i) => i !== raceIndex);
     }
 
     // The user disconnected for some reason
