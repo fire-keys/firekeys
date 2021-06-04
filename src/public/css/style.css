@@ -19,6 +19,10 @@ section#section-race{
     background-color: rgb(206, 141, 236);
 }
 
+div.paragraph-text {
+    user-select: none;
+}
+
 div.race-details {
     width: 100%;
     min-height: 250px;
