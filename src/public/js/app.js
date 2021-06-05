@@ -103,6 +103,7 @@ socket.on('joined', (data) => {
   let spectateMode = false;
   $('.waiting-container').show();
   spectateMode = false;
+  inputTextEl.show();
   pText = data.paragraph;
   maxWmp = 0;
   renderParagraphText(data.paragraph);
