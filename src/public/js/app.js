@@ -140,6 +140,18 @@ socket.on('race-finished', (payload) => {
   modal.style.display = 'block';
   console.log('race finished');
   // if it were in spectate mode let the user back to home page(hide the race section and show the form name section)
+  function renderModelContent(payload) {
+    $('#final_result').empty();
+    let order = [...payload.users];
+    console.log(order, 'sdsdsds');
+    order.sort((a, b) => b.progress - a.progress);
+    order.forEach((user, index) => {
+      $('#final_result').append(`
+        <p>${index + 1} : ${user.name}</p>
+      `);
+    });
+  }
+  renderModelContent(payload);
 });
 
 // on typing through the race

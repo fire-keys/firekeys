@@ -27,7 +27,7 @@ div#section-race {
   justify-content: center;
   margin: 0.3em;
   padding: 0em 0.5em;
-  background-color: rgba(245, 245, 180, 0.4);
+  /* background-color: rgba(245, 245, 180, 0.4); */
 }
 
 .race-ground {
@@ -227,37 +227,33 @@ div.waiting-container span {
 #main-section{
   
   display: flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
-	justify-content: space-between;
-	align-items: flex-start;
-	align-content: stretch;
-
-  
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  align-content: stretch;
 }
 section#section-name-form{
 margin: 0;
 }
 #name-form{
   position: relative;
-  width: 760px;
-  height: 750px;
-  background: url('/img/login.png');
-  background-size: cover;
+  width: 591px;
+  height: 569px;
+  background-image: url('/img/login.png');
+  background-size: contain;
   background-repeat: no-repeat;
-  margin-top: 10px;
-  
+  margin-top: 84px;
 }
 #name-section{
   position: absolute;
   background: url('/img/input.png');
-  background-size: cover;
+  background-size: contain;
   background-repeat: no-repeat;
   width: 315px;
   height: 100px;
-  border: none;
-  margin-top: 386px;
-  margin-left: 251px;
+  top: 274px;
+  left: 187px;
 }
 
 #name{
@@ -279,24 +275,25 @@ margin: 0;
 
 label{
   position: absolute;
-  top: 342px;
-  left: 260px;
-  color:rgb(26, 9, 9) ;
+  top: 253px;
+  left: 184px;
+  color: rgb(26, 9, 9);
   font-family: 'Press Start 2P', cursive;
+  font-size: 13px;
 
 }
 
 #submit{
   background: url('/img/button.png');
-  
-  width: 200px;
-  height: 100px;
-  background-size: cover;
+  width: 150px;
+  height: 75px;
+  background-size: contain;
   position: absolute;
-  margin-top: 531px;
-    margin-left: 338px;
+  top: 399px;
+  left: 258px;
   border: none;
   cursor: pointer;
+  background-repeat: no-repeat;
 
 }
 
@@ -312,56 +309,52 @@ label{
 
 #active-races{
   position: relative;
-  background: url('/img/races.png');
+  background-image: url('/img/races.png');
   width: 420px;
-  height: 800px;
-  background-size: cover;
+  height: 656px;
+  background-size: contain;
   background-repeat: no-repeat;
   display: flex;
-	flex-direction: column;
-	flex-wrap: nowrap;
-	justify-content: flex-start;
-	align-items: center;
-	align-content: center;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: center;
 }
 
 #races-area{
-  width: 80%;
-  height: 410px;
-  margin-top: 200px;
-  display: flex;
-	flex-direction: column;
-	flex-wrap: nowrap;
-	justify-content: flex-start;
-	align-items: center;
-	align-content: center;
+  position: absolute;
+  font-family: 'El Messiri', sans-serif;
+  font-size: 33px;
+  font-weight: bold;
+  color: #FEDB3C;
+  margin-top: 181px;
+  margin-right: 83px;
 }
 .race{
-  background: url('/img/race1.png');
-  width: 260px;
+  background-image: url('/img/race1.png');
+  width: 240px;
   height: 60px;
-  background-size: cover;
+  background-size: contain;
   background-repeat: no-repeat;
   display: flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
-	justify-content: space-around;
-	align-items: center;
-	align-content: center;
-  margin-top: 5px;
-  margin-bottom: 15px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  align-items: center;
+  align-content: center;
+  margin-bottom: 8px;
 
 }
 
 #active-races h2{
   position: absolute;
   font-family: 'El Messiri', sans-serif;
-  font-size: 40px;
+  font-size: 33px;
   font-weight: bold;
-  color:#FEDB3C;
-  margin-top: 119px;
-
-
+  color: #FEDB3C;
+  margin-top: 99px;
+  margin-right: 76px;
 }
 .view{
   background: url('/img/view.png');
