@@ -156,8 +156,8 @@ inputTextEl.on('input', function (event) {
   let wpm = wordPerMinute(startTime);
   let progress = getProgress(inputText, pText);
 
-  if (numberOfLettersTyped === 5 || progress === 1) {
-    // one word in average
+  if (numberOfLettersTyped === 10 || progress === 1) {
+    // two word in average
     userData = {
       name: userName,
       wpm: wpm,
@@ -209,9 +209,9 @@ function renderData(payload) {
       <div class="username-char">
         <p>${user.name}</p>
         <div class="character-path">
-          <div class="character">
+          <div style="left:${Math.floor(user.progress * 100) || 0}%;" class="character">
             <span>${user.id === socket.id ? 'You' : ''}</span>
-            <img style="left:${Math.floor(user.progress * 100) || 0}%;" class="character" src="/img/dino-${index + 1 || 1}.gif" />
+            <img class="character" src="/img/dino-${index + 1 || 1}.gif" />
           </div>
         </div>
       </div>
