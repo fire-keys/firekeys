@@ -1,5 +1,18 @@
 'use strict';
 
+/* START MODAL */
+var modal = document.getElementById('myModal');
+var span = document.getElementsByClassName('close')[0];
+
+span.onclick = function () {
+  modal.style.display = 'none';
+};
+$('#quit_btn').on('click', function (event) {
+  modal.style.display = 'none';
+  window.location.href = '/';
+});
+/* END MODAL */
+
 // disable copy, past, cut text
 $('body').bind('cut copy paste', function (e) {
   e.preventDefault();
@@ -17,8 +30,8 @@ $('#typing-text').on('mouseup', function (e) {
 // create client socket
 const socket = io();
 
-// References to important elements 
-const startPageSection = $('#section-name-form');
+// References to important elements
+const startPageSection = $('#main-section');
 const racePageSection = $('#section-race');
 const userNameForm = $('#name-form');
 const userNameInput = $('#name');
@@ -27,6 +40,7 @@ const inputTextEl = $('#typing-text');
 const paragraphText = $('div.paragraph-text');
 const raceDetailsEl = $('#race-details');
 const waitingEle = $('#waiting');
+const activeRacesEl = $('#races-area');
 
 // global variables
 let userName;
@@ -46,11 +60,12 @@ startPageSection.show();
 // whent user want to join a race
 joinNewRaceBtn.on('click', () => {
   socket.emit('join-race', { name: userName });
+  modal.style.display = 'none';
 });
 
 userNameForm.on('submit', (event) => {
   event.preventDefault();
-  userName = userNameInput.val();
+  userName = userNameInput.val().slice(0, 6);
   socket.emit('join-race', { name: userName });
   userNameInput.value = '';
 });
@@ -59,11 +74,11 @@ userNameForm.on('submit', (event) => {
 socket.emit('get-races');
 // receivign the races data
 socket.on('list-races', (data) => {
-  console.log(data);
-  // funtion to render the list of races
-  // after renderign the elemts, add event listenere to emit the join-spectator mode
+  // render races list
+  renderRacesList(data);
+  // after rendering the elements, add event listenere to emit the join-spectator mode
+  $('button.view').on('click', (e) => spectateRace(e.target.id));
 });
-
 
 // On joining spectate mode
 socket.on('spectate-joined', (data) => {
@@ -72,7 +87,7 @@ socket.on('spectate-joined', (data) => {
   renderParagraphText(data.paragraph);
   inputTextEl.hide();
   startPageSection.hide();
-  racePageSection.css({'display': 'flex'});
+  racePageSection.css({ display: 'flex' });
 });
 
 // whent the server successfully joined the user to a race
@@ -84,7 +99,7 @@ socket.on('joined', (data) => {
   inputTextEl.attr('maxlength', pText.length);
   inputTextEl.attr('disabled', 'disabled');
   startPageSection.hide();
-  racePageSection.css({'display': 'flex'});
+  racePageSection.css({ display: 'flex' });
 });
 
 // Joind a race and waiting for other users
@@ -120,11 +135,23 @@ socket.on('started', (payload) => {
 
 // when the race finish
 socket.on('race-finished', (payload) => {
-  //wen the race finish
+  //when the race finish
   // View the final result and join new race button
+  modal.style.display = 'block';
   console.log('race finished');
   // if it were in spectate mode let the user back to home page(hide the race section and show the form name section)
-  window.alert('The race was finished');
+  function renderModelContent(payload) {
+    $('#final_result').empty();
+    let order = [...payload.users];
+    console.log(order, 'sdsdsds');
+    order.sort((a, b) => b.progress - a.progress);
+    order.forEach((user, index) => {
+      $('#final_result').append(`
+        <p>${index + 1} : ${user.name}</p>
+      `);
+    });
+  }
+  renderModelContent(payload);
 });
 
 // on typing through the race
@@ -136,7 +163,7 @@ inputTextEl.on('input', function (event) {
   errors = 0;
 
   const inputText = event.target.value.split('');
-  
+
   $('div.paragraph-text span').each(function (index) {
     const character = inputText[index];
     // colorize the correct/mistake characters
@@ -172,7 +199,6 @@ inputTextEl.on('input', function (event) {
     startTime = new Date();
     numberOfLettersTyped = 0;
   }
-
 });
 
 // Asuuming that each word consist of five letter in average
@@ -209,8 +235,10 @@ function renderData(payload) {
       <div class="username-char">
         <p>${user.name}</p>
         <div class="character-path">
-          <div style="left:${Math.floor(user.progress * 100) || 0}%;" class="character">
-            <span>${user.id === socket.id ? 'You' : ''}</span>
+          <div style="left:${
+            Math.floor(user.progress * 100) || 0
+          }%;" class="character">
+            <span>${user.id === socket.id ? 'Me' : ''}</span>
             <img class="character" src="/img/dino-${index + 1 || 1}.gif" />
           </div>
         </div>
@@ -240,6 +268,21 @@ function renderData(payload) {
   });
 }
 
+// funtion to render the list of races
+function renderRacesList(data) {
+  data.races.forEach((race, index) => {
+    activeRacesEl.append(`
+    <div class='race'>
+      <p class='race-info'> Race ${index + 1} </p>
+      <button id="${race.raceId}" class="view">
+          View
+      </button>
+    </div>
+    `);
+  });
+}
+
+// function to join a race in spectate mode
 function spectateRace(raceId) {
-  socket.emit('join-spectate', {raceId: raceId});
+  socket.emit('join-spectate', { raceId: raceId });
 }
