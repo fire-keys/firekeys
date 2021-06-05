@@ -18,7 +18,7 @@ $('#typing-text').on('mouseup', function (e) {
 const socket = io();
 
 // References to important elements 
-const startPageSection = $('#section-name-form');
+const startPageSection = $('#main-section');
 const racePageSection = $('#section-race');
 const userNameForm = $('#name-form');
 const userNameInput = $('#name');
@@ -27,6 +27,7 @@ const inputTextEl = $('#typing-text');
 const paragraphText = $('div.paragraph-text');
 const raceDetailsEl = $('#race-details');
 const waitingEle = $('#waiting');
+const activeRacesEl = $('#races-area');
 
 // global variables
 let userName;
@@ -59,9 +60,11 @@ userNameForm.on('submit', (event) => {
 socket.emit('get-races');
 // receivign the races data
 socket.on('list-races', (data) => {
-  console.log(data);
-  // funtion to render the list of races
-  // after renderign the elemts, add event listenere to emit the join-spectator mode
+
+  // render races list
+  renderRacesList(data);
+  // after rendering the elements, add event listenere to emit the join-spectator mode
+  $('button.view').on('click', (e) => spectateRace(e.target.id));
 });
 
 
@@ -240,6 +243,21 @@ function renderData(payload) {
   });
 }
 
+// funtion to render the list of races
+function renderRacesList(data) {
+  data.races.forEach((race, index) => {
+    activeRacesEl.append(`
+    <div class='race'>
+      <p class='race-info'> Race ${index + 1} </p>
+      <button id="${race.raceId}" class="view">
+          View
+      </button>
+    </div>
+    `);
+  });
+}
+
+// function to join a race in spectate mode
 function spectateRace(raceId) {
   socket.emit('join-spectate', {raceId: raceId});
 }

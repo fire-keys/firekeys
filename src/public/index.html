@@ -9,12 +9,20 @@
     <title>Fire Key</title>
   </head>
   <body>
-    <section id="section-name-form">
-      <form id="name-form">
-        <label for="name">Enter your name</label>
-        <input type="text" name="name" id="name" />
-        <input type="submit" value="Join Race" id="submit" />
-      </form>
+    <section id='main-section'>
+      <section id='active-races'>
+        <h2>Active Races</h2>
+        <div id="races-area"></div>
+      </section>
+      <section id="section-name-form">
+          <form id="name-form">
+            <label for="name">Please enter your name</label>
+                <div id="name-section">
+                  <input type="text" name="name" id="name">
+                </div>
+              <input type="submit"id="submit" value="">
+          </form>
+      </section>
     </section>
     <div id="section-race">
       <div class="waiting-container">
@@ -24,156 +32,7 @@
         <p>Views</p>
         <span id="spect-count">0</span>
       </div>
-      <section class="races" id="race-details">
-        <!-- <div class="user">
-          <div class="character-and-ground">
-            <div class="username-char">
-              <p>Furat</p>
-              <div class="character-path">
-                <img class="character" src="/img/dino-1.gif" />
-              </div>
-            </div>
-            <div class="race-ground"></div>
-          </div>
-
-          <img class="door" src="/img/door.png" />
-          <div class="results">
-            <div class="mistakes-and-speed">
-              <div>
-                <img src="/img/yellow.png" />
-                <p>Mistakes 10</p>
-              </div>
-              <div>
-                <img src="/img/heart.png" />
-                <p>Speed 51 WPM</p>
-              </div>
-            </div>
-            <div class="pogress">
-              <img src="/img/progress.png" />
-              <p>Progress 98%</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="user">
-          <div class="character-and-ground">
-            <div class="username-char">
-              <p class="username">Sarah</p>
-              <div class="character-path">
-                <img class="character" src="/img/dino-2.gif" />
-              </div>
-            </div>
-            <div class="race-ground"></div>
-          </div>
-
-          <img class="door" src="/img/door.png" />
-          <div class="results">
-            <div class="mistakes-and-speed">
-              <div>
-                <img src="/img/yellow.png" />
-                <p>Mistakes 10</p>
-              </div>
-              <div>
-                <img src="/img/heart.png" />
-                <p>Speed 51 WPM</p>
-              </div>
-            </div>
-            <div class="pogress">
-              <img src="/img/progress.png" />
-              <p>Progress 98%</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="user">
-          <div class="character-and-ground">
-            <div class="username-char">
-              <p class="username">Sarah</p>
-              <div class="character-path">
-                <img class="character" src="/img/dino-3.gif" />
-              </div>
-            </div>
-            <div class="race-ground"></div>
-          </div>
-
-          <img class="door" src="/img/door.png" />
-          <div class="results">
-            <div class="mistakes-and-speed">
-              <div>
-                <img src="/img/yellow.png" />
-                <p>Mistakes 10</p>
-              </div>
-              <div>
-                <img src="/img/heart.png" />
-                <p>Speed 51 WPM</p>
-              </div>
-            </div>
-            <div class="pogress">
-              <img src="/img/progress.png" />
-              <p>Progress 98%</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="user">
-          <div class="character-and-ground">
-            <div class="username-char">
-              <p class="username">Sarah</p>
-              <div class="character-path">
-                <img class="character" src="/img/dino-4.gif" />
-              </div>
-            </div>
-            <div class="race-ground"></div>
-          </div>
-
-          <img class="door" src="/img/door.png" />
-          <div class="results">
-            <div class="mistakes-and-speed">
-              <div>
-                <img src="/img/yellow.png" />
-                <p>Mistakes 10</p>
-              </div>
-              <div>
-                <img src="/img/heart.png" />
-                <p>Speed 51 WPM</p>
-              </div>
-            </div>
-            <div class="pogress">
-              <img src="/img/progress.png" />
-              <p>Progress 98%</p>
-            </div>
-          </div>
-        </div> -->
-
-        <!-- 
-        <div class="user">
-        <div class="character-and-ground">
-          <div class="username-char">
-          <p class="username">Sarah</p>
-        <img class="character" src="/img/dino3.gif">
-      </div>
-        <div class="race-ground"></div>
-      </div>
-    
-        <img class="door" src="/img/door.png">
-        <div class="results">
-          <div class="mistakes-and-speed">
-          <div>
-          <img src="/img/yellow.png"> 
-          <p>Mistakes  10</p>
-        </div>
-        <div>
-          <img src="/img/heart.png"> 
-          <p>Speed  51 WPM</p>
-        </div>
-      </div>
-      <div class="pogress">
-        <img src="/img/progress.png"> 
-        <p>Progress 98% </p>
-      </div>
-        </div>
-      </div> -->
-      </section>
+      <section class="races" id="race-details"></section>
 
       <div class="wood">
         <div class="paragraph paragraph-text"></div>
