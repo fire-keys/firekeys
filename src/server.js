@@ -9,9 +9,6 @@ const socketServer = require('socket.io');
 const uuid = require('uuid').v4;
 const superagent = require('superagent');
 
-// Internal
-const utils = require('./utils');
-
 // Config the server
 const app = express();
 const httpServer = http.createServer(app);
@@ -31,7 +28,7 @@ app.use(express.static(path.join(__dirname, './public')));
 
 let races = []; // [{raceId: "2e3s-1s5f4-d2dd-3pc3", started: true,  finished: false , users: [{name: "wesam", wpm: 35, progress: 0.95, errors: 4, complete: false, timestamp: 54545487841}, ...]}, ...]
 
-let NUMBER_OF_USERS_PER_RACE = 3;
+let NUMBER_OF_USERS_PER_RACE = 4;
 
 /* All socket logic */
 io.on('connection', (socket) => {
@@ -63,27 +60,39 @@ io.on('connection', (socket) => {
             id: socket.id,
           },
         ],
+        spectators: [],
       });
       socket.join(raceId);
       socket.emit('joined', races[races.length - 1]);
-    } else {
-      if (
-        races[races.length - 1].started === false &&
-        races[races.length - 1].users.length < NUMBER_OF_USERS_PER_RACE
-      ) {
-        socket.join(races[races.length - 1].raceId);
-        races[races.length - 1].started = true;
-        races[races.length - 1].users = [
-          ...races[races.length - 1].users,
-          { name: payload.name, id: socket.id },
-        ];
-        socket.emit('joined', races[races.length - 1]);
-        io.to(races[races.length - 1].raceId).emit(
-          'started',
-          races[races.length - 1]
-        );
-      }
+    } else if (
+      races[races.length - 1].started === false &&
+      races[races.length - 1].users.length === NUMBER_OF_USERS_PER_RACE - 1
+    ) {
+      socket.join(races[races.length - 1].raceId);
+      races[races.length - 1].started = true;
+      races[races.length - 1].users = [
+        ...races[races.length - 1].users,
+        { name: payload.name, id: socket.id },
+      ];
+      socket.emit('joined', races[races.length - 1]);
+
+      io.to(races[races.length - 1].raceId).emit(
+        'started',
+        races[races.length - 1],
+      );
+    } else if (
+      races[races.length - 1].started === false &&
+      races[races.length - 1].users.length < NUMBER_OF_USERS_PER_RACE - 1
+    ) {
+      socket.join(races[races.length - 1].raceId);
+      races[races.length - 1].users = [
+        ...races[races.length - 1].users,
+        { name: payload.name, id: socket.id },
+      ];
+      socket.emit('joined', races[races.length - 1]);
     }
+
+    io.to(races[races.length - 1].raceId).emit('race-data', races[races.length - 1]);
   });
 
   // on receive data
@@ -112,8 +121,24 @@ io.on('connection', (socket) => {
   // on disconnect
   socket.on('disconnect', (payload) => {
     console.log(`User disconnected ${socket.id}`);
-    let userIndex;
+    // if the user was in spectae mode then remove him form the spectators list
+    let spectatorIndex = -1;
     let raceIndex = -1;
+    races.forEach((race, index) => {
+      spectatorIndex = race.spectators.findIndex((spectator) => spectator === socket.id);
+      if (spectatorIndex !== -1) {
+        raceIndex = index;
+      }
+    });
+
+    if (raceIndex !== -1 && spectatorIndex !== -1) {
+      races[raceIndex].spectators = races[raceIndex].spectators.filter((spectator) => spectator !== socket.id);
+      io.to(races[raceIndex].raceId).emit('race-data', races[raceIndex]);
+    }
+
+    // check if the users was playing in race then remove it form the race
+    let userIndex = -1;
+    raceIndex = -1;
     races.forEach((race, index) => {
       userIndex = race.users.findIndex((user) => user.id === socket.id);
       if (userIndex !== -1) {
@@ -121,12 +146,31 @@ io.on('connection', (socket) => {
       }
     });
     if (raceIndex !== -1 && userIndex !== -1) {
-      io.to(races[raceIndex].raceId).emit('race-finished', races[raceIndex]);
-      races = races.filter((race, i) => i !== raceIndex);
+      races[raceIndex].users = races[raceIndex].users.filter((user, i) => user.id !== socket.id);
+      if(races[raceIndex].users.length === 0){
+        io.to(races[raceIndex].raceId).emit('race-finished', races[raceIndex]);
+        races = races.filter((race, i) => i !== raceIndex);
+      }
     }
 
-    // The user disconnected for some reason
-    // Get a race id from the socket if the user in a race then remove the user from that race (from the race array)
+  });
+
+  // Get races informations
+  socket.on('get-races', (payload) => {
+    socket.emit('list-races', {races: races});
+  });
+
+  // Spectate specific race
+  socket.on('join-spectate', (payload) => {
+    const raceIndex = races.findIndex(race => race.raceId = payload.raceId);
+    if(raceIndex === -1){
+      socket.emit('wrong-raceId');
+      return;
+    }
+    races[raceIndex].spectators = [...races[raceIndex].spectators, socket.id];
+    socket.join(payload.raceId);
+    socket.emit('spectate-joined', races[raceIndex]);
+    io.to(races[raceIndex].raceId).emit('race-data', races[raceIndex]);
   });
 });
 
@@ -137,16 +181,17 @@ io.on('connection', (socket) => {
 setInterval(() => {
   races.forEach((race, index) => {
     if (!race.started) {
-      if (race.users.length > 1) {
+      if (race.users.length >= NUMBER_OF_USERS_PER_RACE) {
         races[index] = { ...races[index], started: true };
         // copy of races
         // update property started in it
         // spreading
-        io.to(race.raceId).emit('race-started', race);
-      } else if (race.users.length === 1) {
-        io.to(race.raceId).emit('waiting');
-      } else {
+        console.log('*race.users.length >= NUMBER_OF_USERS_PER_RACE)');
+        io.to(race.raceId).emit('started', race);
+      } else if (race.users.length <= 0) {
         races = races.filter((race, i) => i !== index);
+      } else {
+        io.to(race.raceId).emit('waiting');
       }
     } else if (
       (race.started && race.finished) ||
