@@ -43,7 +43,7 @@ const waitingEle = $('#waiting');
 const activeRacesEl = $('#races-area');
 
 // global variables
-let userName;
+let userName = 'Anonymous';
 let userData;
 let startTime = new Date();
 let numberOfLettersTyped = 0;
@@ -59,6 +59,9 @@ startPageSection.show();
 
 // whent user want to join a race
 joinNewRaceBtn.on('click', () => {
+  waitingEle.css({
+    'font-size': '15px',
+  });
   socket.emit('join-race', { name: userName });
   modal.style.display = 'none';
 });
@@ -82,6 +85,11 @@ socket.on('list-races', (data) => {
 
 // On joining spectate mode
 socket.on('spectate-joined', (data) => {
+  if(!data.started){
+    $('.waiting-container').show();
+  } else {
+    $('.waiting-container').hide();
+  }
   spectateMode = true;
   pText = data.paragraph;
   renderParagraphText(data.paragraph);
@@ -92,6 +100,8 @@ socket.on('spectate-joined', (data) => {
 
 // whent the server successfully joined the user to a race
 socket.on('joined', (data) => {
+  $('.waiting-container').show();
+  spectateMode = false;
   pText = data.paragraph;
   maxWmp = 0;
   renderParagraphText(data.paragraph);
