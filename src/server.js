@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, './public')));
 
 let races = []; // [{raceId: "2e3s-1s5f4-d2dd-3pc3", started: true,  finished: false , users: [{name: "wesam", wpm: 35, progress: 0.95, errors: 4, complete: false, timestamp: 54545487841}, ...]}, ...]
 
-let NUMBER_OF_USERS_PER_RACE = 3;
+let NUMBER_OF_USERS_PER_RACE = 4;
 
 /* All socket logic */
 io.on('connection', (socket) => {
@@ -60,6 +60,7 @@ io.on('connection', (socket) => {
             id: socket.id,
           },
         ],
+        spectators: [],
       });
       socket.join(raceId);
       socket.emit('joined', races[races.length - 1]);
@@ -120,8 +121,24 @@ io.on('connection', (socket) => {
   // on disconnect
   socket.on('disconnect', (payload) => {
     console.log(`User disconnected ${socket.id}`);
-    let userIndex;
+    // if the user was in spectae mode then remove him form the spectators list
+    let spectatorIndex = -1;
     let raceIndex = -1;
+    races.forEach((race, index) => {
+      spectatorIndex = race.spectators.findIndex((spectator) => spectator === socket.id);
+      if (spectatorIndex !== -1) {
+        raceIndex = index;
+      }
+    });
+
+    if (raceIndex !== -1 && spectatorIndex !== -1) {
+      races[raceIndex].spectators = races[raceIndex].spectators.filter((spectator) => spectator !== socket.id);
+      io.to(races[raceIndex].raceId).emit('race-data', races[raceIndex]);
+    }
+
+    // check if the users was playing in race then remove it form the race
+    let userIndex = -1;
+    raceIndex = -1;
     races.forEach((race, index) => {
       userIndex = race.users.findIndex((user) => user.id === socket.id);
       if (userIndex !== -1) {
@@ -136,8 +153,24 @@ io.on('connection', (socket) => {
       }
     }
 
-    // The user disconnected for some reason
-    // Get a race id from the socket if the user in a race then remove the user from that race (from the race array)
+  });
+
+  // Get races informations
+  socket.on('get-races', (payload) => {
+    socket.emit('list-races', {races: races});
+  });
+
+  // Spectate specific race
+  socket.on('join-spectate', (payload) => {
+    const raceIndex = races.findIndex(race => race.raceId = payload.raceId);
+    if(raceIndex === -1){
+      socket.emit('wrong-raceId');
+      return;
+    }
+    races[raceIndex].spectators = [...races[raceIndex].spectators, socket.id];
+    socket.join(payload.raceId);
+    socket.emit('spectate-joined', races[raceIndex]);
+    io.to(races[raceIndex].raceId).emit('race-data', races[raceIndex]);
   });
 });
 

@@ -37,6 +37,7 @@ let errors = 0;
 let maxWmp = 0;
 // get the text to be type
 let pText;
+let spectateMode = false;
 
 // Inital show the start form
 startPageSection.show();
@@ -52,6 +53,26 @@ userNameForm.on('submit', (event) => {
   userName = userNameInput.val();
   socket.emit('join-race', { name: userName });
   userNameInput.value = '';
+});
+
+// Requesting races data
+socket.emit('get-races');
+// receivign the races data
+socket.on('list-races', (data) => {
+  console.log(data);
+  // funtion to render the list of races
+  // after renderign the elemts, add event listenere to emit the join-spectator mode
+});
+
+
+// On joining spectate mode
+socket.on('spectate-joined', (data) => {
+  spectateMode = true;
+  pText = data.paragraph;
+  renderParagraphText(data.paragraph);
+  inputTextEl.hide();
+  startPageSection.hide();
+  racePageSection.css({'display': 'flex'});
 });
 
 // whent the server successfully joined the user to a race
@@ -102,6 +123,7 @@ socket.on('race-finished', (payload) => {
   //wen the race finish
   // View the final result and join new race button
   console.log('race finished');
+  // if it were in spectate mode let the user back to home page(hide the race section and show the form name section)
   window.alert('The race was finished');
 });
 
@@ -178,6 +200,7 @@ function renderParagraphText(pText) {
 
 // render the updated data
 function renderData(payload) {
+  $('#spect-count').text(payload.spectators.length);
   raceDetailsEl.empty();
   payload.users.forEach((user, index) => {
     raceDetailsEl.append(`
@@ -215,4 +238,8 @@ function renderData(payload) {
   </div>
     `);
   });
+}
+
+function spectateRace(raceId) {
+  socket.emit('join-spectate', {raceId: raceId});
 }
