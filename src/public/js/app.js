@@ -251,7 +251,7 @@ function renderData(payload) {
             Math.floor(user.progress * 100) || 0
           }%;" class="character">
             <span>${user.id === socket.id ? 'Me' : ''}</span>
-            <img class="character" src="/img/dino-${index + 1 || 1}.gif" />
+            <img class="character" src="/img/dino-${index + 1 || 1}.gif" ${index + 1 === 3 ? 'style="width: 3em;"': ''} />
           </div>
         </div>
       </div>
