@@ -50,7 +50,7 @@ joinNewRaceBtn.on('click', () => {
 
 userNameForm.on('submit', (event) => {
   event.preventDefault();
-  userName = userNameInput.val();
+  userName = userNameInput.val().slice(0, 6);
   socket.emit('join-race', { name: userName });
   userNameInput.value = '';
 });
@@ -210,7 +210,7 @@ function renderData(payload) {
         <p>${user.name}</p>
         <div class="character-path">
           <div style="left:${Math.floor(user.progress * 100) || 0}%;" class="character">
-            <span>${user.id === socket.id ? 'You' : ''}</span>
+            <span>${user.id === socket.id ? 'Me' : ''}</span>
             <img class="character" src="/img/dino-${index + 1 || 1}.gif" />
           </div>
         </div>
