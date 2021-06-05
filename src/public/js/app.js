@@ -43,7 +43,7 @@ const waitingEle = $('#waiting');
 const activeRacesEl = $('#races-area');
 
 // global variables
-let userName = 'Anonymous';
+let userName = 'Guest';
 let userData;
 let startTime = new Date();
 let numberOfLettersTyped = 0;
@@ -100,6 +100,7 @@ socket.on('spectate-joined', (data) => {
 
 // whent the server successfully joined the user to a race
 socket.on('joined', (data) => {
+  let spectateMode = false;
   $('.waiting-container').show();
   spectateMode = false;
   pText = data.paragraph;

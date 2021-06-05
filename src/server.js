@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, './public')));
 
 let races = []; // [{raceId: "2e3s-1s5f4-d2dd-3pc3", started: true,  finished: false , users: [{name: "wesam", wpm: 35, progress: 0.95, errors: 4, complete: false, timestamp: 54545487841}, ...]}, ...]
 
-let NUMBER_OF_USERS_PER_RACE = 2;
+let NUMBER_OF_USERS_PER_RACE = 4;
 
 /* All socket logic */
 io.on('connection', (socket) => {
