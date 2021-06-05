@@ -1,0 +1,114 @@
+/* START MODAL */
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 0px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fefefe00;
+    margin: auto;
+    padding: 0;
+    width: 50%;
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+@-webkit-keyframes animatetop {
+    from {
+        top: -300px;
+        opacity: 0
+    }
+    to {
+        top: 0;
+        opacity: 1
+    }
+}
+
+@keyframes animatetop {
+    from {
+        top: -300px;
+        opacity: 0;
+        transform: scale(1.5) perspective(.5px)
+    }
+    to {
+        top: 0;
+        opacity: 1;
+        transform: scale(1) perspective(.5px)
+    }
+}
+
+.modal-body {
+    padding: 2px 16px;
+    margin: auto;
+    background-image: url("./pop.png");
+    background-repeat: no-repeat;
+    width: 700px;
+    height: 860px;
+}
+
+.modal-footer {
+    padding: 2px 16px;
+    margin: auto;
+    color: rgba(255, 255, 255, 0);
+    width: 700px;
+    bottom: 88px;
+    position: absolute;
+    left: 98px;
+}
+
+.paly_quit_buttons {
+    margin: 0 25%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+
+.play_btn {
+    height: 70px;
+    background-color: rgba(240, 248, 255, 0);
+    border: none;
+    background-image: url("./play.png");
+    background-repeat: no-repeat;
+    cursor: pointer;
+    opacity: 80%;
+}
+
+.quit_btn {
+    height: 70px;
+    background-color: rgba(240, 248, 255, 0);
+    border: none;
+    background-image: url("./quit.png");
+    background-repeat: no-repeat;
+    cursor: pointer;
+    opacity: 80%;
+}
+
+.quit_btn:hover,
+.play_btn:hover {
+    opacity: 100%;
+    transform: scale(1.2) perspective(.5px)
+}
+
+.final_result {
+    margin: 50% 20%;
+    text-align: center;
+    color: #f1c489;
+    font-size: 22px;
+    font-family: cursive;
+}
+
+
+/* END MODAL */
