@@ -252,8 +252,8 @@ margin: 0;
   background-repeat: no-repeat;
   width: 315px;
   height: 100px;
-  top: 274px;
-  left: 187px;
+  top: 48%;
+  left: 31%;
 }
 
 #name{
@@ -275,8 +275,8 @@ margin: 0;
 
 label{
   position: absolute;
-  top: 253px;
-  left: 184px;
+  top: 44%;
+  left: 31%;
   color: rgb(26, 9, 9);
   font-family: 'Press Start 2P', cursive;
   font-size: 13px;
@@ -353,8 +353,8 @@ label{
   font-size: 33px;
   font-weight: bold;
   color: #FEDB3C;
-  margin-top: 99px;
-  margin-right: 76px;
+  margin-top: 24%;
+  margin-right: 20%;
 }
 .view{
   background: url('/img/view.png');
@@ -455,8 +455,8 @@ p.race-info{
   width: 700px;
   bottom: 88px;
   position: absolute;
-  left: -33px;
-  bottom: 90px;
+  left: -4%;
+  bottom: 13%;
 }
 
 .paly_quit_buttons {
