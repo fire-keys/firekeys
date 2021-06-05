@@ -1,4 +1,5 @@
 'use strict';
+
 // disable copy, past, cut text
 $('body').bind('cut copy paste', function (e) {
   e.preventDefault();
@@ -13,87 +14,90 @@ $('#typing-text').on('mouseup', function (e) {
   e.preventDefault ? e.preventDefault() : (e.returnValue = false);
 });
 
+// create client socket
 const socket = io();
 
+// References to important elements 
+const startPageSection = $('#section-name-form');
+const racePageSection = $('#section-race');
 const userNameForm = $('#name-form');
-const UserNameInput = $('#name');
+const userNameInput = $('#name');
+const joinNewRaceBtn = $('#join-new-race');
+const inputTextEl = $('#typing-text');
+const paragraphText = $('div.paragraph-text');
+const raceDetailsEl = $('#race-details');
+const waitingEle = $('#waiting');
+
+// global variables
 let userName;
 let userData;
-// for statistice
 let startTime = new Date();
 let numberOfLettersTyped = 0;
 let errors = 0;
 let maxWmp = 0;
-
 // get the text to be type
 let pText;
 
-$('#section-name-form').show();
-$('#section-race').hide();
+// Inital show the start form
+startPageSection.show();
+// racePageSection.hide();
 
-$('#join-new-race').on('click', () => {
+// whent user want to join a race
+joinNewRaceBtn.on('click', () => {
   socket.emit('join-race', { name: userName });
 });
 
 userNameForm.on('submit', (event) => {
   event.preventDefault();
-  userName = UserNameInput.val();
+  userName = userNameInput.val();
   socket.emit('join-race', { name: userName });
-  UserNameInput.value = '';
+  userNameInput.value = '';
 });
 
+// whent the server successfully joined the user to a race
 socket.on('joined', (data) => {
   pText = data.paragraph;
   maxWmp = 0;
   renderParagraphText(data.paragraph);
-  $('#typing-text').val('');
-  $('#typing-text').attr('maxlength', pText.length);
-  $('#typing-text').attr('disabled', 'disabled');
-  $('#section-name-form').hide();
-  $('#section-race').show();
+  inputTextEl.val('');
+  inputTextEl.attr('maxlength', pText.length);
+  inputTextEl.attr('disabled', 'disabled');
+  startPageSection.hide();
+  racePageSection.css({'display': 'flex'});
 });
 
+// Joind a race and waiting for other users
 socket.on('waiting', (payload) => {
-  $('#waiting').text('Waiting the race to start');
+  waitingEle.text('Waiting other users');
 });
 
+// Get updates from the server
 socket.on('race-data', renderData);
 
-function renderData(payload) {
-  $('#race-details').empty();
-  payload.users.forEach((user) => {
-    $('#race-details').append(`
-    <div class="user-data">
-      <div class="user-name"> ${user.name}${
-      user.id === socket.id ? '(You)' : ''
-    }</div>
-      <div class="wmp"> ${user.wpm || 0} WPM</div>
-      <div class="max-wmp"> Max WPM: ${user.maxWmp || 0}</div>
-      <div class="errors"> ${user.errors || 0} Errors</div>
-      <div class="progress"> progress ${
-        Math.floor(user.progress * 100) || 0
-      }%</div> 
-    </div>
-    `);
-  });
-}
-
+// when the race started
 socket.on('started', (payload) => {
   // render a timer for five second
   let timer = 5;
   const timeOut = setInterval(() => {
-    $('#waiting').text(timer);
+    waitingEle.text(timer);
+    waitingEle.css({
+      'font-size': '35px',
+    });
     timer--;
     if (timer === -1) {
-      $('#waiting').text('Go');
-      $('#typing-text').removeAttr('disabled').focus();
+      waitingEle.text('Go');
+      inputTextEl.removeAttr('disabled').focus();
       clearInterval(timeOut);
+      setTimeout(() => {
+        $('.waiting-container').hide();
+      }, 500);
     }
   }, 1000);
-  $('#waiting').text('');
+  waitingEle.text('');
   renderData(payload);
 });
 
+// when the race finish
 socket.on('race-finished', (payload) => {
   //wen the race finish
   // View the final result and join new race button
@@ -101,38 +105,19 @@ socket.on('race-finished', (payload) => {
   window.alert('The race was finished');
 });
 
-//{name: "wesam", wpm: 35, progress: 0.95, errors: 4, complete: false}
-
-const typingText = $('#typing-text').on('input', function (event) {
+// on typing through the race
+inputTextEl.on('input', function (event) {
   event.preventDefault();
   numberOfLettersTyped++;
 
-  const inputText = event.target.value.split('');
-  let wpm = wordPerMinute(startTime);
-  let progress = getProgress(inputText, pText);
-
-  if (numberOfLettersTyped === 15 || progress === 1) {
-    // five word in average
-    userData = {
-      name: userName,
-      wpm: wpm,
-      maxWmp: maxWmp,
-      errors: errors,
-      progress: progress,
-    };
-
-    socket.emit('refresh-data', userData);
-
-    $('#wmp-text').text(wpm);
-    startTime = new Date();
-    numberOfLettersTyped = 0;
-  }
-
+  // reset the error counter to calculate again
   errors = 0;
 
-  $('.paragraph-text span').each(function (index) {
+  const inputText = event.target.value.split('');
+  
+  $('div.paragraph-text span').each(function (index) {
     const character = inputText[index];
-
+    // colorize the correct/mistake characters
     if (!character) {
       $(this).removeClass('error');
       $(this).removeClass('correct');
@@ -145,6 +130,27 @@ const typingText = $('#typing-text').on('input', function (event) {
       $(this).removeClass('correct');
     }
   });
+
+  let wpm = wordPerMinute(startTime);
+  let progress = getProgress(inputText, pText);
+
+  if (numberOfLettersTyped === 5 || progress === 1) {
+    // one word in average
+    userData = {
+      name: userName,
+      wpm: wpm,
+      maxWmp: maxWmp,
+      errors: errors,
+      progress: progress,
+    };
+    // send data to the server
+    socket.emit('refresh-data', userData);
+
+    // reset the time and letters typed to compute the speed of typing for next time
+    startTime = new Date();
+    numberOfLettersTyped = 0;
+  }
+
 });
 
 // Asuuming that each word consist of five letter in average
@@ -157,15 +163,56 @@ function wordPerMinute(startTime) {
   return wpm;
 }
 
+// calculate the progress of the player
 function getProgress(inputText, paragraphText) {
   return (inputText.length - errors) / paragraphText.split('').length;
 }
 
 // get the paragraph text element
 function renderParagraphText(pText) {
-  const paragraphText = $('div.paragraph-text');
   paragraphText.empty();
   pText.split('').forEach((character) => {
     paragraphText.append($(`<span>${character}</span>`));
+  });
+}
+
+// render the updated data
+function renderData(payload) {
+  raceDetailsEl.empty();
+  payload.users.forEach((user, index) => {
+    raceDetailsEl.append(`
+    <div class="user">
+    <div class="character-and-ground">
+      <div class="username-char">
+        <p>${user.name}</p>
+        <div class="character-path">
+          <div class="character">
+            <span>${user.id === socket.id ? 'You' : ''}</span>
+            <img style="left:${Math.floor(user.progress * 100) || 0}%;" class="character" src="/img/dino-${index + 1 || 1}.gif" />
+          </div>
+        </div>
+      </div>
+      <div class="race-ground"></div>
+    </div>
+
+    <img class="door" src="/img/door.png" />
+    <div class="results">
+      <div class="mistakes-and-speed">
+        <div>
+          <img src="/img/yellow.png" />
+          <p>Mistakes ${user.errors || 0}</p>
+        </div>
+        <div>
+          <img src="/img/heart.png" />
+          <p>Speed ${user.wpm || 0} WPM</p>
+        </div>
+      </div>
+      <div class="pogress">
+        <img src="/img/progress.png" />
+        <p>Progress ${Math.floor(user.progress * 100) || 0}%</p>
+      </div>
+    </div>
+  </div>
+    `);
   });
 }

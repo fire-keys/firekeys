@@ -9,9 +9,6 @@ const socketServer = require('socket.io');
 const uuid = require('uuid').v4;
 const superagent = require('superagent');
 
-// Internal
-const utils = require('./utils');
-
 // Config the server
 const app = express();
 const httpServer = http.createServer(app);
@@ -66,24 +63,35 @@ io.on('connection', (socket) => {
       });
       socket.join(raceId);
       socket.emit('joined', races[races.length - 1]);
-    } else {
-      if (
-        races[races.length - 1].started === false &&
-        races[races.length - 1].users.length < NUMBER_OF_USERS_PER_RACE
-      ) {
-        socket.join(races[races.length - 1].raceId);
-        races[races.length - 1].started = true;
-        races[races.length - 1].users = [
-          ...races[races.length - 1].users,
-          { name: payload.name, id: socket.id },
-        ];
-        socket.emit('joined', races[races.length - 1]);
-        io.to(races[races.length - 1].raceId).emit(
-          'started',
-          races[races.length - 1]
-        );
-      }
+    } else if (
+      races[races.length - 1].started === false &&
+      races[races.length - 1].users.length === NUMBER_OF_USERS_PER_RACE - 1
+    ) {
+      socket.join(races[races.length - 1].raceId);
+      races[races.length - 1].started = true;
+      races[races.length - 1].users = [
+        ...races[races.length - 1].users,
+        { name: payload.name, id: socket.id },
+      ];
+      socket.emit('joined', races[races.length - 1]);
+
+      io.to(races[races.length - 1].raceId).emit(
+        'started',
+        races[races.length - 1],
+      );
+    } else if (
+      races[races.length - 1].started === false &&
+      races[races.length - 1].users.length < NUMBER_OF_USERS_PER_RACE - 1
+    ) {
+      socket.join(races[races.length - 1].raceId);
+      races[races.length - 1].users = [
+        ...races[races.length - 1].users,
+        { name: payload.name, id: socket.id },
+      ];
+      socket.emit('joined', races[races.length - 1]);
     }
+
+    io.to(races[races.length - 1].raceId).emit('race-data', races[races.length - 1]);
   });
 
   // on receive data
@@ -121,8 +129,11 @@ io.on('connection', (socket) => {
       }
     });
     if (raceIndex !== -1 && userIndex !== -1) {
-      io.to(races[raceIndex].raceId).emit('race-finished', races[raceIndex]);
-      races = races.filter((race, i) => i !== raceIndex);
+      races[raceIndex].users = races[raceIndex].users.filter((user, i) => user.id !== socket.id);
+      if(races[raceIndex].users.length === 0){
+        io.to(races[raceIndex].raceId).emit('race-finished', races[raceIndex]);
+        races = races.filter((race, i) => i !== raceIndex);
+      }
     }
 
     // The user disconnected for some reason
@@ -137,16 +148,17 @@ io.on('connection', (socket) => {
 setInterval(() => {
   races.forEach((race, index) => {
     if (!race.started) {
-      if (race.users.length > 1) {
+      if (race.users.length >= NUMBER_OF_USERS_PER_RACE) {
         races[index] = { ...races[index], started: true };
         // copy of races
         // update property started in it
         // spreading
-        io.to(race.raceId).emit('race-started', race);
-      } else if (race.users.length === 1) {
-        io.to(race.raceId).emit('waiting');
-      } else {
+        console.log('*race.users.length >= NUMBER_OF_USERS_PER_RACE)');
+        io.to(race.raceId).emit('started', race);
+      } else if (race.users.length <= 0) {
         races = races.filter((race, i) => i !== index);
+      } else {
+        io.to(race.raceId).emit('waiting');
       }
     } else if (
       (race.started && race.finished) ||
